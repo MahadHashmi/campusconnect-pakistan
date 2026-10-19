@@ -6,8 +6,11 @@ from dotenv import load_dotenv
 # Load variables from .env file
 load_dotenv()
 
-# Get Database URL from .env, with a fallback
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+# Get Database URL from .env, with a Supabase production fallback
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres.pbyazfahuytyzxjkcluu:MyCampusPass2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+)
 
 # Supabase provides URLs starting with 'postgresql://' or 'postgres://'.
 # Ensure SQLAlchemy uses psycopg2 driver

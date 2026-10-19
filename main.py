@@ -1,7 +1,12 @@
 import os
+import sys
 import uuid
 import shutil
 from typing import List, Optional
+
+# Ensure project root is in sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, Depends, HTTPException, Query, status, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -14,8 +19,11 @@ import models
 import schemas
 from auth_utils import hash_password, verify_password, create_access_token
 
-# Automatically create tables if not existing
-models.Base.metadata.create_all(bind=engine)
+# Automatically create tables if not existing (graceful on serverless cold starts)
+try:
+    models.Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Table verification skipped or completed: {e}")
 
 app = FastAPI(
     title="CampusConnect API",
