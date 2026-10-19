@@ -13,6 +13,10 @@ except Exception as e:
     app = FastAPI()
     err_msg = f"{type(e).__name__}: {str(e)}\n\nTraceback:\n{traceback.format_exc()}"
     
-    @app.get("/{full_path:path}")
-    def catch_all(full_path: str):
+    @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+    def catch_all(full_path: str = ""):
+        return {"error": "Import error during initialization", "details": err_msg}
+
+    @app.api_route("/", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+    def catch_root():
         return {"error": "Import error during initialization", "details": err_msg}
