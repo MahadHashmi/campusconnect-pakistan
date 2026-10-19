@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusConnect - Pakistan Student Social Network & Marketplace</title>
+  <meta name="theme-color" content="#059669">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .story-ring { background: linear-gradient(45deg, #10b981, #6366f1, #ec4899); }
+  </style>
+</head>
+<body class="bg-slate-900 flex justify-center min-h-screen text-slate-100">
+
+  <!-- Mobile App Frame Container -->
+  <div class="w-full max-w-md bg-slate-950 min-h-screen flex flex-col shadow-2xl relative pb-20 border-x border-slate-800">
+
+    <!-- Top Header -->
+    <header class="bg-slate-900/90 backdrop-blur-md px-4 pt-4 pb-3 sticky top-0 z-30 border-b border-slate-800 flex items-center justify-between">
+      <div>
+        <button onclick="openModal('campusModal')" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-full text-xs text-emerald-400 border border-slate-700 transition">
+          <i class="fa-solid fa-location-dot text-emerald-400 text-[11px]"></i>
+          <span id="activeCampusLabel" class="font-bold truncate max-w-[170px]">PU • New Campus</span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+        </button>
+        <h1 class="text-lg font-black tracking-tight text-white mt-0.5 flex items-center gap-1.5">
+          CampusConnect <span class="text-[10px] bg-gradient-to-r from-emerald-500 to-indigo-500 text-white px-2 py-0.5 rounded-full font-bold">PAKISTAN</span>
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openModal('gpaModal')" title="GPA Calculator" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 transition">
+          <i class="fa-solid fa-calculator text-xs text-amber-400"></i>
+        </button>
+        <button onclick="openModal('createPostModal')" title="Create Post" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 transition">
+          <i class="fa-solid fa-plus text-sm"></i>
+        </button>
+        <button onclick="switchTab('messages')" title="Direct Messages" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 relative transition">
+          <i class="fa-regular fa-paper-plane text-sm"></i>
+          <span class="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- PWA Install Banner (Visible on mobile) -->
+    <div id="pwaInstallBanner" class="hidden bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-4 py-2 flex items-center justify-between text-xs font-bold shadow-md z-20">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-mobile-screen-button text-sm"></i>
+        <span>Install as App on your Phone!</span>
+      </div>
+      <button onclick="triggerPwaInstall()" class="bg-white text-emerald-800 px-2.5 py-1 rounded-full text-[11px] font-black shadow hover:bg-slate-100 transition">
+        Install
+      </button>
+    </div>
+
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <main class="flex-1 overflow-y-auto hide-scrollbar">
+
+      <!-- ============================================== -->
+      <!-- TAB 1: SOCIAL FEED (Photos, Posts, Stories)    -->
+      <!-- ============================================== -->
+      <section id="tabFeed" class="space-y-4 pb-6">
+        
+        <!-- Feed Scope Switcher -->
+        <div class="bg-slate-900 px-4 py-2 border-b border-slate-800/80 flex items-center justify-between text-xs">
+          <div class="flex gap-2">
+            <button id="filterCampusBtn" onclick="setFeedFilter('campus')" class="px-3 py-1 rounded-full font-bold bg-emerald-600 text-white text-[11px] transition">
+              🏫 My Campus
+            </button>
+            <button id="filterPakBtn" onclick="setFeedFilter('pakistan')" class="px-3 py-1 rounded-full font-bold bg-slate-800 text-slate-400 hover:text-white text-[11px] transition">
+              🇵🇰 All Pakistan
+            </button>
+          </div>
+          <button onclick="openModal('createPostModal')" class="text-pink-400 hover:text-pink-300 font-semibold text-[11px] flex items-center gap-1">
+            <i class="fa-solid fa-user-secret"></i> Confession
+          </button>
+        </div>
+
+        <!-- 24h Stories Bar -->
+        <div class="px-4 pt-1">
+          <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2" id="storiesBar">
+            <div onclick="openModal('createPostModal')" class="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0">
+              <div class="w-14 h-14 rounded-full bg-slate-800 border-2 border-dashed border-slate-600 flex items-center justify-center text-slate-300 text-lg hover:border-emerald-400 transition">
+                <i class="fa-solid fa-plus text-emerald-400"></i>
+              </div>
+              <span class="text-[11px] text-slate-400 font-medium truncate w-14 text-center">Your Story</span>
+            </div>
+
+            <div onclick="viewStory('Cricket Match 🏏', 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800')" class="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0">
+              <div class="p-0.5 story-ring rounded-full">
+                <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=120" class="w-14 h-14 rounded-full object-cover border-2 border-slate-950">
+              </div>
+              <span class="text-[11px] text-slate-300 font-medium truncate w-14 text-center">Cricket 🏏</span>
+            </div>
+
+            <div onclick="viewStory('Canteen Chai ☕', 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=800')" class="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0">
+              <div class="p-0.5 story-ring rounded-full">
+                <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=120" class="w-14 h-14 rounded-full object-cover border-2 border-slate-950">
+              </div>
+              <span class="text-[11px] text-slate-300 font-medium truncate w-14 text-center">Dhaba ☕</span>
+            </div>
+
+            <div onclick="viewStory('Tech Society Event 🚀', 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800')" class="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0">
+              <div class="p-0.5 story-ring rounded-full">
+                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=120" class="w-14 h-14 rounded-full object-cover border-2 border-slate-950">
+              </div>
+              <span class="text-[11px] text-slate-300 font-medium truncate w-14 text-center">GDSC 🚀</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Persistent Feed Posts (Loaded from Supabase) -->
+        <div class="space-y-4" id="feedPostsContainer">
+          <div class="text-center py-8 text-slate-400 text-xs">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Loading live campus feed from database...
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 2: INSTAGRAM-STYLE SEARCH & EXPLORE        -->
+      <!-- ============================================== -->
+      <section id="tabExplore" class="hidden px-3 pt-3 pb-6 space-y-3">
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+          <input type="text" id="instaSearchInput" oninput="handleInstaSearch()" 
+                 placeholder="Search students, seniors, #hashtags, universities..." 
+                 class="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+          <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-circle-xmark text-xs"></i>
+          </button>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1 text-xs">
+          <button onclick="setSearchFilter('all')" class="px-3 py-1 rounded-full font-bold bg-emerald-600 text-white text-[11px] whitespace-nowrap">🔥 For You</button>
+          <button onclick="setSearchFilter('students')" class="px-3 py-1 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] whitespace-nowrap border border-slate-800">🎓 Students</button>
+          <button onclick="setSearchFilter('campuses')" class="px-3 py-1 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] whitespace-nowrap border border-slate-800">🏫 Universities</button>
+        </div>
+
+        <div id="searchResultsContainer" class="hidden space-y-2 py-2"></div>
+
+        <div id="exploreDefaultView" class="space-y-3">
+          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">🔥 Trending on Pakistan Campuses</span>
+              <span class="text-[10px] text-emerald-400">Live</span>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <span onclick="applyHashtag('#Midterms2026')" class="cursor-pointer bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-emerald-400 font-semibold text-[11px]">#Midterms2026</span>
+              <span onclick="applyHashtag('#PU_FCIT')" class="cursor-pointer bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-indigo-400 font-semibold text-[11px]">#PU_FCIT</span>
+              <span onclick="applyHashtag('#FAST_NuFest')" class="cursor-pointer bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-pink-400 font-semibold text-[11px]">#FAST_NuFest</span>
+              <span onclick="applyHashtag('#HostelLife')" class="cursor-pointer bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-yellow-400 font-semibold text-[11px]">#HostelLife</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2 px-1">
+              <span class="text-xs font-bold text-slate-300">Discover Campus Vibes</span>
+              <span class="text-[11px] text-slate-500">Updated hourly</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden" id="exploreGrid">
+              <div class="relative aspect-square cursor-pointer group overflow-hidden bg-slate-900">
+                <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400" class="w-full h-full object-cover">
+              </div>
+              <div class="relative aspect-square cursor-pointer group overflow-hidden bg-slate-900">
+                <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400" class="w-full h-full object-cover">
+              </div>
+              <div class="relative aspect-square cursor-pointer group overflow-hidden bg-slate-900">
+                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400" class="w-full h-full object-cover">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 3: CAMPUS MARKETPLACE (Hostel OLX & Gigs)  -->
+      <!-- ============================================== -->
+      <section id="tabMarketplace" class="hidden px-4 py-3 space-y-4 pb-6">
+        
+        <div class="bg-gradient-to-r from-amber-900/40 via-yellow-900/30 to-amber-950 border border-amber-600/30 rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <h3 class="font-black text-sm text-amber-200">Campus Bazaar & Freelance Gigs</h3>
+            <p class="text-[11px] text-amber-300/80">Buy/sell used books, calculators & student services</p>
+          </div>
+          <button onclick="openModal('createMarketModal')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow-lg transition flex items-center gap-1">
+            <i class="fa-solid fa-tag"></i> Sell / Offer
+          </button>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1 text-xs">
+          <button onclick="filterMarketplace('')" class="px-3 py-1 rounded-full font-bold bg-amber-500 text-slate-950 text-[11px] whitespace-nowrap">All Items</button>
+          <button onclick="filterMarketplace('book')" class="px-3 py-1 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] whitespace-nowrap border border-slate-800">📚 Textbooks</button>
+          <button onclick="filterMarketplace('calculator')" class="px-3 py-1 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] whitespace-nowrap border border-slate-800">🔢 Calculators</button>
+          <button onclick="filterMarketplace('gig')" class="px-3 py-1 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] whitespace-nowrap border border-slate-800">💼 Gigs & PPT</button>
+          <button onclick="filterMarketplace('hostel')" class="px-3 py-1 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] whitespace-nowrap border border-slate-800">🛏️ Hostel Items</button>
+        </div>
+
+        <div class="space-y-3" id="marketplaceContainer"></div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 4: DIRECT MESSAGES                         -->
+      <!-- ============================================== -->
+      <section id="tabMessages" class="hidden px-4 py-3 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div>
+            <h3 class="font-black text-sm text-white">Campus Chats</h3>
+            <span class="text-[11px] text-emerald-400 font-medium">Active Conversations</span>
+          </div>
+          <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">Online (18)</span>
+        </div>
+
+        <div class="space-y-2">
+          <div onclick="openChatScreen('Ahmed Khan (Senior)', 'PU FCIT 7th Sem', 'AK', 'bg-indigo-600')" class="p-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl cursor-pointer flex items-center justify-between transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">AK</div>
+              <div>
+                <h4 class="font-bold text-xs text-white">Ahmed Khan (Senior)</h4>
+                <p class="text-[11px] text-slate-400 truncate max-w-[190px]">Yes, midterm paper was from Sir Usman slides</p>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-500">10m ago</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 5: STUDENT PROFILE                         -->
+      <!-- ============================================== -->
+      <section id="tabProfile" class="hidden px-4 py-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="w-20 h-20 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-2xl border-4 border-slate-800 shadow-xl">
+            MH
+          </div>
+          <div class="flex gap-4 text-center">
+            <div><span class="font-black text-sm text-white block">14</span><span class="text-[10px] text-slate-400">Posts</span></div>
+            <div><span class="font-black text-sm text-white block">420</span><span class="text-[10px] text-slate-400">Followers</span></div>
+            <div><span class="font-black text-sm text-white block">280</span><span class="text-[10px] text-slate-400">Following</span></div>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex items-center gap-1.5">
+            <h3 class="font-black text-sm text-white">Mahad Hashmi</h3>
+            <span class="text-[10px] bg-emerald-900/60 text-emerald-400 px-2 py-0.5 rounded-full font-bold">Verified Student ✓</span>
+          </div>
+          <p class="text-xs text-emerald-400 font-semibold">BS Information Technology • 4th Semester</p>
+          <p class="text-[11px] text-slate-400">University of the Punjab (New Campus, Lahore)</p>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button onclick="switchTab('marketplace')" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-2 rounded-xl transition">
+            My Bazaar Listings
+          </button>
+          <button onclick="switchTab('vault')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl transition">
+            Academic Vault
+          </button>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 6: ACADEMIC VAULT                          -->
+      <!-- ============================================== -->
+      <section id="tabVault" class="hidden px-4 py-3 space-y-4">
+        <div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Select Semester</h2>
+          <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1" id="semesterPills"></div>
+        </div>
+        <div class="space-y-2.5" id="vaultCoursesContainer"></div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-3 py-2.5 flex justify-between items-center z-40">
+      <button onclick="switchTab('feed')" id="navFeed" class="flex flex-col items-center text-emerald-400 font-bold text-[11px] transition">
+        <i class="fa-solid fa-house text-lg mb-0.5"></i>
+        <span>Home</span>
+      </button>
+      <button onclick="switchTab('explore')" id="navExplore" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 text-[11px] transition">
+        <i class="fa-solid fa-magnifying-glass text-lg mb-0.5"></i>
+        <span>Search</span>
+      </button>
+      <button onclick="openModal('createPostModal')" class="bg-gradient-to-tr from-emerald-500 to-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center -mt-5 shadow-lg border-2 border-slate-900 hover:scale-105 transition">
+        <i class="fa-solid fa-plus text-sm"></i>
+      </button>
+      <button onclick="switchTab('marketplace')" id="navMarket" class="flex flex-col items-center text-slate-400 hover:text-amber-400 text-[11px] transition">
+        <i class="fa-solid fa-store text-lg mb-0.5"></i>
+        <span>Bazaar</span>
+      </button>
+      <button onclick="switchTab('profile')" id="navProfile" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 text-[11px] transition">
+        <i class="fa-regular fa-user text-lg mb-0.5"></i>
+        <span>Profile</span>
+      </button>
+    </nav>
+
+    <!-- ============================================== -->
+    <!-- MODAL: CREATE POST WITH REAL CAMERA / GALLERY  -->
+    <!-- ============================================== -->
+    <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div class="bg-slate-900 w-full max-w-md rounded-3xl p-5 shadow-2xl border border-slate-800 animate-fade-in">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-white text-sm flex items-center gap-2">
+            <i class="fa-solid fa-pen-nib text-emerald-400"></i> Create Post or Confession
+          </h3>
+          <button onclick="closeModal('createPostModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form onsubmit="handleCreatePost(event)" class="space-y-3">
+          <textarea id="postCaption" rows="3" placeholder="What's happening on campus? (Events, photos, routine, or tea ☕)..." required
+                    class="w-full bg-slate-800 text-xs p-3 rounded-2xl border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"></textarea>
+          
+          <!-- REAL FILE PICKER & CAMERA UPLOADER -->
+          <input type="file" id="postFileInput" accept="image/*" onchange="previewUploadImage(this)" class="hidden">
+          <div onclick="document.getElementById('postFileInput').click()" class="border-2 border-dashed border-slate-700 hover:border-emerald-400/80 rounded-2xl p-3 text-center cursor-pointer transition bg-slate-800/40">
+            <i class="fa-solid fa-camera text-xl text-emerald-400 mb-1"></i>
+            <p class="text-xs text-slate-200 font-bold" id="uploadStatusText">Tap to Choose Photo / Camera</p>
+            <p class="text-[10px] text-slate-400">Upload pictures directly from your phone gallery</p>
+            <img id="imagePreview" class="hidden max-h-40 mx-auto rounded-xl mt-2 object-cover border border-slate-700 shadow-md">
+          </div>
+          <input type="hidden" id="uploadedImageUrl" value="">
+
+          <!-- ANONYMOUS CONFESSION TOGGLE -->
+          <div class="flex items-center justify-between p-2.5 bg-slate-800 rounded-xl border border-slate-700">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-user-secret text-pink-400 text-base"></i>
+              <div>
+                <span class="text-xs font-bold text-white block">Campus Whisper</span>
+                <span class="text-[10px] text-slate-400">Post anonymously without showing your name</span>
+              </div>
+            </div>
+            <input type="checkbox" id="postIsAnonymous" class="w-4 h-4 accent-pink-500 rounded cursor-pointer">
+          </div>
+
+          <button type="submit" id="postSubmitBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-lg transition mt-2">
+            Publish Post
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: HEC CGPA / GPA CALCULATOR               -->
+    <!-- ============================================== -->
+    <div id="gpaModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div class="bg-slate-900 w-full max-w-md rounded-3xl p-5 shadow-2xl border border-slate-800 animate-fade-in">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-amber-300 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-calculator"></i> HEC CGPA Calculator
+          </h3>
+          <button onclick="closeModal('gpaModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="text-[11px] text-slate-400 mb-3">Calculated on standard 4.0 Pakistan University Scale</p>
+
+        <div class="space-y-2 text-xs" id="gpaInputsContainer">
+          <div class="grid grid-cols-3 gap-2">
+            <input type="text" placeholder="Subject" value="Course 1" class="bg-slate-800 p-2 rounded-xl text-white border border-slate-700">
+            <select class="bg-slate-800 p-2 rounded-xl text-white border border-slate-700 gpa-grade">
+              <option value="4.0">A (4.00)</option>
+              <option value="3.7">A- (3.70)</option>
+              <option value="3.3">B+ (3.30)</option>
+              <option value="3.0" selected>B (3.00)</option>
+              <option value="2.7">B- (2.70)</option>
+              <option value="2.0">C (2.00)</option>
+            </select>
+            <select class="bg-slate-800 p-2 rounded-xl text-white border border-slate-700 gpa-cr">
+              <option value="3" selected>3 Cr Hr</option>
+              <option value="4">4 Cr Hr</option>
+              <option value="1">1 Cr Hr</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <input type="text" placeholder="Subject" value="Course 2" class="bg-slate-800 p-2 rounded-xl text-white border border-slate-700">
+            <select class="bg-slate-800 p-2 rounded-xl text-white border border-slate-700 gpa-grade">
+              <option value="4.0" selected>A (4.00)</option>
+              <option value="3.7">A- (3.70)</option>
+              <option value="3.3">B+ (3.30)</option>
+              <option value="3.0">B (3.00)</option>
+            </select>
+            <select class="bg-slate-800 p-2 rounded-xl text-white border border-slate-700 gpa-cr">
+              <option value="3" selected>3 Cr Hr</option>
+              <option value="4">4 Cr Hr</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-amber-950/40 border border-amber-600/40 rounded-2xl flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-200">Estimated Semester GPA:</span>
+          <span class="text-xl font-black text-amber-400" id="calculatedGpa">3.50</span>
+        </div>
+
+        <button onclick="calculateGpa()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-2.5 rounded-xl shadow-lg transition mt-3">
+          Recalculate GPA
+        </button>
+      </div>
+    </div>
+
+    <!-- Marketplace Create Modal -->
+    <div id="createMarketModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div class="bg-slate-900 w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-800">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-amber-300 text-sm">Sell an Item or Offer a Service</h3>
+          <button onclick="closeModal('createMarketModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form onsubmit="handleCreateMarketplace(event)" class="space-y-3">
+          <input type="text" id="marketTitle" placeholder="Item Title / Service Name" required class="w-full bg-slate-800 text-xs p-2.5 rounded-xl border border-slate-700 text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="marketPrice" placeholder="Price (PKR)" required class="w-full bg-slate-800 text-xs p-2.5 rounded-xl border border-slate-700 text-white">
+            <select id="marketCategory" class="w-full bg-slate-800 text-xs p-2.5 rounded-xl border border-slate-700 text-white">
+              <option value="book">Textbook</option>
+              <option value="calculator">Calculator / Gadget</option>
+              <option value="gig">Freelance Gig</option>
+              <option value="hostel">Hostel Item</option>
+            </select>
+          </div>
+          <textarea id="marketDesc" rows="2" placeholder="Description..." required class="w-full bg-slate-800 text-xs p-2.5 rounded-xl border border-slate-700 text-white"></textarea>
+          <input type="text" id="marketWhatsApp" placeholder="WhatsApp (923001234567)" required class="w-full bg-slate-800 text-xs p-2.5 rounded-xl border border-slate-700 text-white">
+          <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-2.5 rounded-xl shadow-lg transition mt-2">
+            List in Campus Bazaar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Campus Modal -->
+    <div id="campusModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+      <div class="bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col p-5 shadow-2xl border border-slate-800">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+          <h3 class="font-bold text-base text-white">Select Campus</h3>
+          <button onclick="closeModal('campusModal')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="overflow-y-auto py-3 space-y-2.5 flex-1">
+          <div onclick="selectCampus('PU • New Campus (Lahore)')" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer flex justify-between items-center text-xs text-white">
+            <span>University of the Punjab (New Campus)</span>
+            <span class="text-[10px] bg-emerald-900/60 text-emerald-400 px-2 py-0.5 rounded font-bold">Select</span>
+          </div>
+          <div onclick="selectCampus('FAST • Lahore Campus')" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer flex justify-between items-center text-xs text-white">
+            <span>FAST-NUCES (Lahore Campus)</span>
+            <span class="text-[10px] bg-indigo-900/60 text-indigo-400 px-2 py-0.5 rounded font-bold">Select</span>
+          </div>
+          <div onclick="selectCampus('NUST • H-12 Islamabad')" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer flex justify-between items-center text-xs text-white">
+            <span>NUST (Main Campus H-12, Islamabad)</span>
+            <span class="text-[10px] bg-pink-900/60 text-pink-400 px-2 py-0.5 rounded font-bold">Select</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const API_URL = window.location.origin;
+    let activeTab = "feed";
+    let activeCampus = "PU • New Campus (Lahore)";
+    let currentSemester = 1;
+    let deferredPrompt = null;
+
+    // PWA Mobile App Installation Prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.remove('hidden');
+    });
+
+    function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          document.getElementById('pwaInstallBanner').classList.add('hidden');
+        });
+      } else {
+        alert("To install on your phone:\nTap Chrome's 3-dots menu at the top right -> tap 'Install app' or 'Add to Home screen'!");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+      }
+      loadFeedPosts();
+      loadMarketplaceItems();
+      buildSemesterPills();
+      loadVaultCourses(1);
+    });
+
+    // REAL IMAGE UPLOAD & PREVIEW (Gallery / Camera)
+    async function previewUploadImage(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const statusText = document.getElementById("uploadStatusText");
+        statusText.innerText = "Uploading photo to server...";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById("uploadedImageUrl").value = data.file_url;
+            
+            const preview = document.getElementById("imagePreview");
+            preview.src = data.file_url;
+            preview.classList.remove("hidden");
+            statusText.innerText = "✓ Photo Attached Successfully!";
+          } else {
+            statusText.innerText = "Upload failed. Try again.";
+          }
+        } catch (e) {
+          statusText.innerText = "Error uploading image.";
+        }
+      }
+    }
+
+    // 1. LIVE PERSISTENT POSTS (GET /posts)
+    async function loadFeedPosts() {
+      const container = document.getElementById("feedPostsContainer");
+      try {
+        const res = await fetch(`${API_URL}/posts`);
+        const posts = await res.json();
+        if (posts.length === 0) {
+          container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">No posts yet. Be the first to post!</div>`;
+          return;
+        }
+
+        container.innerHTML = posts.map(p => {
+          const isAnon = p.author_name.includes("Anonymous") || p.author_name.includes("Whisper");
+          return `
+            <article class="bg-slate-900 border-y sm:border sm:rounded-2xl border-slate-800 overflow-hidden animate-fade-in">
+              <div class="p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-full ${isAnon ? 'bg-pink-600' : 'bg-emerald-600'} flex items-center justify-center font-bold text-xs text-white">
+                    ${isAnon ? '<i class="fa-solid fa-user-secret"></i>' : p.author_name.charAt(0)}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="font-bold text-xs text-white">${p.author_name}</h4>
+                      <span class="text-[10px] ${isAnon ? 'bg-pink-900/60 text-pink-300' : 'bg-emerald-900/60 text-emerald-400'} px-1.5 py-0.2 rounded font-semibold">${isAnon ? 'Campus Whisper 🤫' : p.campus_name}</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Posted on CampusConnect</span>
+                  </div>
+                </div>
+              </div>
+              <div class="px-3.5 pb-2 text-xs text-slate-200">${p.content}</div>
+              ${p.media_url ? `
+                <div class="relative bg-slate-950">
+                  <img src="${p.media_url}" class="w-full max-h-96 object-cover">
+                </div>` : ''}
+              <div class="p-3 flex items-center justify-between text-slate-300 border-t border-slate-800/60 text-xs">
+                <div class="flex items-center gap-4">
+                  <button onclick="likePost(${p.id}, this)" class="flex items-center gap-1.5 hover:text-pink-500 transition">
+                    <i class="fa-regular fa-heart text-base"></i>
+                    <span class="font-semibold text-xs count">${p.likes_count}</span>
+                  </button>
+                  <button class="flex items-center gap-1.5 hover:text-emerald-400 transition">
+                    <i class="fa-regular fa-comment text-base"></i>
+                    <span class="font-semibold text-xs">0</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+      } catch (err) {
+        container.innerHTML = `<div class="p-3 bg-red-950/40 text-red-400 text-xs rounded-xl">Check if server is running.</div>`;
+      }
+    }
+
+    // CREATE POST (POST /posts)
+    async function handleCreatePost(e) {
+      e.preventDefault();
+      const btn = document.getElementById("postSubmitBtn");
+      btn.innerText = "Publishing to Supabase...";
+      btn.disabled = true;
+
+      const isAnonymous = document.getElementById("postIsAnonymous").checked;
+      const media = document.getElementById("uploadedImageUrl").value || null;
+
+      const payload = {
+        author_name: isAnonymous ? "Anonymous Student 🤫" : "Mahad Hashmi",
+        campus_name: activeCampus,
+        content: document.getElementById("postCaption").value,
+        media_url: media,
+        media_type: "photo"
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          alert("🎉 Post published to Campus Feed!");
+          closeModal('createPostModal');
+          document.getElementById("postCaption").value = "";
+          document.getElementById("uploadedImageUrl").value = "";
+          document.getElementById("imagePreview").classList.add("hidden");
+          document.getElementById("uploadStatusText").innerText = "Tap to Choose Photo / Camera";
+          loadFeedPosts();
+        }
+      } catch (err) {
+        alert("Server error creating post.");
+      } finally {
+        btn.innerText = "Publish Post";
+        btn.disabled = false;
+      }
+    }
+
+    async function likePost(postId, btn) {
+      const countSpan = btn.querySelector('.count');
+      const icon = btn.querySelector('i');
+      icon.classList.remove('fa-regular');
+      icon.classList.add('fa-solid', 'text-pink-500');
+
+      try {
+        const res = await fetch(`${API_URL}/posts/${postId}/like`, { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          countSpan.innerText = data.likes_count;
+        }
+      } catch (e) {
+        countSpan.innerText = parseInt(countSpan.innerText) + 1;
+      }
+    }
+
+    // CGPA CALCULATOR
+    function calculateGpa() {
+      const grades = document.querySelectorAll(".gpa-grade");
+      const credits = document.querySelectorAll(".gpa-cr");
+      let totalPoints = 0;
+      let totalCredits = 0;
+
+      for (let i = 0; i < grades.length; i++) {
+        const gradeVal = parseFloat(grades[i].value);
+        const crVal = parseFloat(credits[i].value);
+        totalPoints += gradeVal * crVal;
+        totalCredits += crVal;
+      }
+
+      const gpa = (totalPoints / totalCredits).toFixed(2);
+      document.getElementById("calculatedGpa").innerText = gpa;
+    }
+
+    // 2. LIVE CAMPUS MARKETPLACE
+    async function loadMarketplaceItems(category = "") {
+      const container = document.getElementById("marketplaceContainer");
+      let url = `${API_URL}/marketplace`;
+      if (category) url += `?category=${category}`;
+
+      try {
+        const res = await fetch(url);
+        const items = await res.json();
+        if (items.length === 0) {
+          container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">No items listed yet.</div>`;
+          return;
+        }
+
+        container.innerHTML = items.map(item => `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col sm:flex-row gap-3 p-3">
+            <div class="w-full sm:w-28 h-28 rounded-xl bg-slate-800 overflow-hidden flex-shrink-0">
+              <img src="${item.image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300'}" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start">
+                  <h4 class="font-bold text-xs text-white">${item.title}</h4>
+                  <span class="text-xs font-black text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-800/40">Rs. ${item.price.toLocaleString()}</span>
+                </div>
+                <p class="text-[11px] text-slate-300 mt-1 line-clamp-2">${item.description}</p>
+              </div>
+              <div class="flex items-center justify-between pt-2 mt-2 border-t border-slate-800/60">
+                <span class="text-[10px] text-slate-400">${item.seller_name} • ${item.campus_name}</span>
+                <a href="https://wa.me/${item.whatsapp_number}?text=Hi!%20I%20saw%20your%20listing%20on%20CampusConnect:%20${encodeURIComponent(item.title)}" target="_blank"
+                   class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow transition">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      } catch (err) {
+        container.innerHTML = `<div class="text-xs text-slate-400">Failed to load marketplace items.</div>`;
+      }
+    }
+
+    function filterMarketplace(cat) { loadMarketplaceItems(cat); }
+
+    async function handleCreateMarketplace(e) {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById("marketTitle").value,
+        price: parseInt(document.getElementById("marketPrice").value),
+        category: document.getElementById("marketCategory").value,
+        description: document.getElementById("marketDesc").value,
+        whatsapp_number: document.getElementById("marketWhatsApp").value,
+        image_url: 'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=600',
+        seller_name: "Mahad Hashmi",
+        campus_name: activeCampus
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/marketplace`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          alert("🎉 Your item has been listed in the Campus Bazaar!");
+          closeModal('createMarketModal');
+          loadMarketplaceItems();
+        }
+      } catch (err) {
+        alert("Failed to list item.");
+      }
+    }
+
+    // Switch Bottom Tabs
+    function switchTab(tab) {
+      activeTab = tab;
+      document.getElementById("tabFeed").classList.add("hidden");
+      document.getElementById("tabExplore").classList.add("hidden");
+      document.getElementById("tabMarketplace").classList.add("hidden");
+      document.getElementById("tabVault").classList.add("hidden");
+      document.getElementById("tabMessages").classList.add("hidden");
+      document.getElementById("tabProfile").classList.add("hidden");
+
+      const resetClass = "flex flex-col items-center text-slate-400 hover:text-emerald-400 text-[11px] transition";
+      document.getElementById("navFeed").className = resetClass;
+      document.getElementById("navExplore").className = resetClass;
+      document.getElementById("navMarket").className = "flex flex-col items-center text-slate-400 hover:text-amber-400 text-[11px] transition";
+      document.getElementById("navProfile").className = resetClass;
+
+      if (tab === 'feed') {
+        document.getElementById("tabFeed").classList.remove("hidden");
+        document.getElementById("navFeed").className = "flex flex-col items-center text-emerald-400 font-bold text-[11px] transition";
+      } else if (tab === 'explore') {
+        document.getElementById("tabExplore").classList.remove("hidden");
+        document.getElementById("navExplore").className = "flex flex-col items-center text-emerald-400 font-bold text-[11px] transition";
+      } else if (tab === 'marketplace') {
+        document.getElementById("tabMarketplace").classList.remove("hidden");
+        document.getElementById("navMarket").className = "flex flex-col items-center text-amber-400 font-bold text-[11px] transition";
+      } else if (tab === 'messages') {
+        document.getElementById("tabMessages").classList.remove("hidden");
+      } else if (tab === 'profile') {
+        document.getElementById("tabProfile").classList.remove("hidden");
+        document.getElementById("navProfile").className = "flex flex-col items-center text-emerald-400 font-bold text-[11px] transition";
+      } else if (tab === 'vault') {
+        document.getElementById("tabVault").classList.remove("hidden");
+      }
+    }
+
+    function selectCampus(name) {
+      activeCampus = name;
+      document.getElementById("activeCampusLabel").innerText = name;
+      closeModal('campusModal');
+    }
+
+    function buildSemesterPills() {
+      const container = document.getElementById("semesterPills");
+      container.innerHTML = "";
+      for (let i = 1; i <= 8; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = `Sem ${i}`;
+        btn.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+          i === currentSemester ? "bg-emerald-600 text-white shadow-md" : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+        }`;
+        btn.onclick = () => {
+          currentSemester = i;
+          buildSemesterPills();
+          loadVaultCourses(i);
+        };
+        container.appendChild(btn);
+      }
+    }
+
+    async function loadVaultCourses(semester) {
+      const container = document.getElementById("vaultCoursesContainer");
+      try {
+        const res = await fetch(`${API_URL}/courses?semester=${semester}`);
+        const courses = await res.json();
+        container.innerHTML = courses.map(c => `
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-xs text-white">${c.name}</h4>
+              <span class="text-[11px] text-slate-400">${c.code} • Semester ${c.semester}</span>
+            </div>
+            <button class="bg-emerald-600/30 text-emerald-400 px-2.5 py-1 rounded-lg text-xs font-bold">Past Papers</button>
+          </div>
+        `).join("");
+      } catch (e) {
+        container.innerHTML = `<div class="text-xs text-slate-400">Launch run_app.bat to view live courses.</div>`;
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+    function viewStory(title, url) { alert(`24h Story: "${title}"`); }
+  </script>
+</body>
+</html>

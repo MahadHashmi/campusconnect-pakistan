@@ -19,11 +19,6 @@ import models
 import schemas
 from auth_utils import hash_password, verify_password, create_access_token
 
-# Automatically create tables if not existing (graceful on serverless cold starts)
-try:
-    models.Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print(f"Table verification skipped or completed: {e}")
 
 app = FastAPI(
     title="CampusConnect API",
