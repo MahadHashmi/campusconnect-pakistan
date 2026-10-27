@@ -44,6 +44,9 @@
           <i class="fa-solid fa-user-circle text-xs"></i>
           <span id="headerAuthText">Join / Login</span>
         </button>
+        <button onclick="openExamArenaModal()" title="Exam Quizzes & MCQs" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 transition">
+          <i class="fa-solid fa-brain text-xs text-indigo-400"></i>
+        </button>
         <button onclick="openModal('gpaModal')" title="GPA Calculator" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-200 transition">
           <i class="fa-solid fa-calculator text-xs text-amber-400"></i>
         </button>
@@ -285,11 +288,32 @@
       </section>
 
       <!-- ============================================== -->
-      <!-- TAB 6: ACADEMIC VAULT                          -->
+      <!-- TAB 6: ACADEMIC VAULT & EXAM ARENA             -->
       <!-- ============================================== -->
       <section id="tabVault" class="hidden px-4 py-3 space-y-4">
+        
+        <!-- Interactive Exam Prep & MCQ Banner -->
+        <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border border-indigo-500/40 p-4 rounded-3xl shadow-xl space-y-2.5">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] bg-indigo-500/30 text-indigo-300 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Midterm & Final Prep</span>
+            <span class="text-[11px] text-amber-400 font-bold flex items-center gap-1"><i class="fa-solid fa-trophy text-xs"></i> MCQ Arena</span>
+          </div>
+          <div>
+            <h3 class="font-black text-sm text-white">Interactive Exam Quizzes & Tests</h3>
+            <p class="text-[11px] text-slate-300">Test yourself on real past paper MCQs with instant explanations.</p>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button onclick="openExamArenaModal()" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:brightness-110 text-white font-bold text-xs py-2 rounded-xl shadow-lg transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-brain"></i> Take Quick MCQ Test
+            </button>
+            <button onclick="openExamArenaModal('custom')" class="px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs py-2 rounded-xl border border-slate-700 transition">
+              Select Subject 📚
+            </button>
+          </div>
+        </div>
+
         <div>
-          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Select Semester</h2>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Select Semester Courses</h2>
           <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1" id="semesterPills"></div>
         </div>
         <div class="space-y-2.5" id="vaultCoursesContainer"></div>
@@ -607,6 +631,149 @@
             <span class="text-[10px] bg-amber-900/60 text-amber-400 px-2 py-0.5 rounded font-bold">Select</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: EXAM PREP, QUIZZES & MCQS ARENA         -->
+    <!-- ============================================== -->
+    <div id="quizModal" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+      <div class="bg-slate-900 w-full max-w-md rounded-3xl p-5 shadow-2xl border border-slate-800 animate-fade-in max-h-[90vh] overflow-y-auto hide-scrollbar">
+        
+        <!-- VIEW 1: QUIZ SETUP / SUBJECT SELECTOR -->
+        <div id="quizSetupView" class="space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-xs shadow-md">
+                <i class="fa-solid fa-brain"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">Exam Prep & Quiz Arena</h3>
+                <p class="text-[10px] text-slate-400">HEC Syllabus • High-Yield Past Paper MCQs</p>
+              </div>
+            </div>
+            <button onclick="closeModal('quizModal')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Choose Course / Subject to Prepare</label>
+            <select id="quizSubjectSelect" class="w-full bg-slate-800 text-xs p-3 rounded-xl border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="CS-203">Database Systems (SQL & Normalization)</option>
+              <option value="CS-201">Data Structures & Algorithms (DSA)</option>
+              <option value="CS-102">Object Oriented Programming (OOP / C++)</option>
+              <option value="CS-204">Operating Systems (Linux, Threads & Deadlocks)</option>
+              <option value="CS-101">Programming Fundamentals (C++)</option>
+              <option value="EE-102">Digital Logic Design (DLD & Gates)</option>
+              <option value="CS-103">Discrete Structures & Logic</option>
+              <option value="GEN-101">Pakistan Studies & Islamic Ethics</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Quiz Exam Mode</label>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button type="button" id="quizModeBlitzBtn" onclick="setQuizMode('blitz')" class="p-3 rounded-xl border border-indigo-500 bg-indigo-950/60 text-white font-bold text-left transition">
+                <span class="block text-indigo-400 text-sm">⚡ 5 MCQs Blitz</span>
+                <span class="text-[10px] text-slate-300 font-normal">Quick 3-minute exam revision</span>
+              </button>
+              <button type="button" id="quizModeFullBtn" onclick="setQuizMode('full')" class="p-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-bold text-left hover:border-slate-600 transition">
+                <span class="block text-white text-sm">📝 Midterm Mock</span>
+                <span class="text-[10px] text-slate-400 font-normal">Comprehensive 10 questions</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 bg-indigo-950/40 border border-indigo-500/30 rounded-2xl flex items-center justify-between text-xs">
+            <span class="text-indigo-300 text-[11px]">💡 Instant answers with detailed explanations</span>
+            <span class="text-amber-400 font-bold text-[10px]">Rank Boost</span>
+          </div>
+
+          <button onclick="startActiveQuiz()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:brightness-110 text-white font-black text-xs py-3 rounded-xl shadow-lg transition">
+            Start Exam Quiz Now 🎯
+          </button>
+        </div>
+
+        <!-- VIEW 2: ACTIVE QUESTION PLAYER -->
+        <div id="quizPlayerView" class="hidden space-y-4">
+          <!-- Quiz Top Stats -->
+          <div class="flex justify-between items-center text-xs pb-2 border-b border-slate-800">
+            <span id="quizSubjectBadge" class="bg-indigo-950 text-indigo-400 border border-indigo-800/40 px-2.5 py-0.5 rounded-full font-bold text-[10px]">
+              Database Systems
+            </span>
+            <div class="flex items-center gap-2">
+              <span id="quizProgressText" class="text-slate-400 font-semibold text-[11px]">Question 1 of 5</span>
+              <button onclick="cancelQuiz()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="quizProgressBar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full transition-all duration-300" style="width: 20%"></div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl space-y-3">
+            <span class="text-[10px] text-indigo-400 uppercase tracking-wider font-bold">Past Paper Question</span>
+            <h4 id="quizQuestionText" class="text-sm font-bold text-white leading-snug">
+              Which normal form eliminates partial functional dependency on a composite primary key?
+            </h4>
+          </div>
+
+          <!-- 4 Option Buttons -->
+          <div class="space-y-2" id="quizOptionsContainer"></div>
+
+          <!-- Explanation Box (Appears after answer) -->
+          <div id="quizExplanationBox" class="hidden p-3 bg-slate-800 border border-slate-700 rounded-xl text-xs space-y-1 animate-fade-in">
+            <span class="font-bold text-emerald-400 flex items-center gap-1 text-[11px]">
+              <i class="fa-solid fa-circle-info"></i> Exam Explanation:
+            </span>
+            <p id="quizExplanationText" class="text-slate-300 text-[11px] leading-relaxed"></p>
+          </div>
+
+          <!-- Next Button -->
+          <button id="quizNextBtn" onclick="nextQuizQuestion()" class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-black text-xs py-2.5 rounded-xl shadow-lg transition">
+            Next Question ➔
+          </button>
+        </div>
+
+        <!-- VIEW 3: RESULTS & SCORE CARD -->
+        <div id="quizResultView" class="hidden text-center space-y-4 py-2">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-indigo-600 text-white flex items-center justify-center text-3xl mx-auto shadow-2xl border-4 border-slate-800">
+            🏆
+          </div>
+
+          <div>
+            <h3 class="font-black text-lg text-white" id="quizResultTitle">Exam Quiz Completed!</h3>
+            <p class="text-xs text-slate-400 mt-0.5" id="quizResultSubject">Database Systems (CS-203)</p>
+          </div>
+
+          <!-- Score Card -->
+          <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-2">
+            <div class="text-2xl font-black text-emerald-400" id="quizResultScore">4 / 5 (80%)</div>
+            <p class="text-xs font-semibold text-slate-200" id="quizResultVerdict">
+              🌟 A Grade Potential! You are well prepared for your midterms.
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-2 pt-2">
+            <button onclick="shareQuizScoreToFeed()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-bold text-xs py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bullhorn"></i> Share Score on Campus Feed 📢
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="retakeCurrentQuiz()" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition">
+                🔄 Retake Quiz
+              </button>
+              <button onclick="resetQuizToSetup()" class="p-2.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 rounded-xl text-xs font-bold border border-indigo-800/60 transition">
+                📚 Other Subject
+              </button>
+            </div>
+            <button onclick="closeModal('quizModal')" class="text-xs text-slate-500 hover:text-slate-400 block mx-auto pt-1">
+              Close Quiz Arena
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1303,12 +1470,17 @@
           const courses = await res.json();
           if (courses.length > 0) {
             container.innerHTML = courses.map(c => `
-              <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between">
+              <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between gap-2">
                 <div>
                   <h4 class="font-bold text-xs text-white">${c.name}</h4>
                   <span class="text-[11px] text-slate-400">${c.code} • Semester ${c.semester}</span>
                 </div>
-                <button class="bg-emerald-600/30 text-emerald-400 px-2.5 py-1 rounded-lg text-xs font-bold">Past Papers</button>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <button onclick="startQuizForSubject('${c.name}', '${c.code}')" class="bg-indigo-600/30 hover:bg-indigo-600 hover:text-white text-indigo-400 px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-brain text-[10px]"></i> Quiz
+                  </button>
+                  <button onclick="alert('Viewing past midterm & final papers for ${c.code}')" class="bg-emerald-600/30 hover:bg-emerald-600 hover:text-white text-emerald-400 px-2 py-1 rounded-lg text-[11px] font-bold transition">Papers</button>
+                </div>
               </div>
             `).join("");
             return;
@@ -1357,14 +1529,496 @@
 
       const container = document.getElementById("vaultCoursesContainer");
       container.innerHTML = list.map(c => `
-        <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between">
+        <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between gap-2">
           <div>
             <h4 class="font-bold text-xs text-white">${c.name}</h4>
             <span class="text-[11px] text-slate-400">${c.code} • Semester ${c.semester}</span>
           </div>
-          <button onclick="alert('Viewing past midterm & final papers for ${c.code}')" class="bg-emerald-600/30 hover:bg-emerald-600 hover:text-white text-emerald-400 px-2.5 py-1 rounded-lg text-xs font-bold transition">Past Papers</button>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button onclick="startQuizForSubject('${c.name}', '${c.code}')" class="bg-indigo-600/30 hover:bg-indigo-600 hover:text-white text-indigo-400 px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-brain text-[10px]"></i> Quiz
+            </button>
+            <button onclick="alert('Viewing past midterm & final papers for ${c.code}')" class="bg-emerald-600/30 hover:bg-emerald-600 hover:text-white text-emerald-400 px-2 py-1 rounded-lg text-[11px] font-bold transition">Papers</button>
+          </div>
         </div>
       `).join("");
+    }
+
+    // ==========================================
+    // EXAM PREPARATION, QUIZZES & MCQS ARENA
+    // ==========================================
+
+    const EXAM_QUESTION_BANK = {
+      "CS-203": [
+        {
+          q: "Which normal form eliminates partial functional dependency on a composite candidate key?",
+          options: ["First Normal Form (1NF)", "Second Normal Form (2NF)", "Third Normal Form (3NF)", "Boyce-Codd Normal Form (BCNF)"],
+          correct: 1,
+          exp: "Second Normal Form (2NF) requires a relation to be in 1NF and ensure all non-key attributes are fully functionally dependent on the entire primary key."
+        },
+        {
+          q: "Which SQL clause is used to filter records AFTER an aggregation with GROUP BY has been computed?",
+          options: ["WHERE", "ORDER BY", "HAVING", "LIMIT"],
+          correct: 2,
+          exp: "WHERE filters rows before grouping; HAVING filters aggregated groups created by GROUP BY."
+        },
+        {
+          q: "Which ACID property guarantees that all operations within a database transaction either succeed together or roll back completely?",
+          options: ["Atomicity", "Consistency", "Isolation", "Durability"],
+          correct: 0,
+          exp: "Atomicity ('all-or-nothing') ensures incomplete transactions are never partially committed."
+        },
+        {
+          q: "What data structure is standard in PostgreSQL and MySQL for implementing fast clustered and non-clustered indexes?",
+          options: ["Binary Search Tree (BST)", "B+ Tree", "Hash Table", "Red-Black Tree"],
+          correct: 1,
+          exp: "B+ Trees maintain sorted order with high fan-out, making range queries and disk block I/O highly optimal."
+        },
+        {
+          q: "In relational algebra, which operator corresponds to filtering tuples (rows) that satisfy a given predicate?",
+          options: ["Projection (π)", "Selection (σ)", "Cartesian Product (×)", "Join (⨝)"],
+          correct: 1,
+          exp: "Selection (σ) filters rows/tuples based on a condition, whereas Projection (π) selects columns."
+        }
+      ],
+      "CS-201": [
+        {
+          q: "What is the worst-case time complexity of Binary Search on a sorted array of N elements?",
+          options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"],
+          correct: 1,
+          exp: "Binary search halves the search space at each comparison step, yielding O(log N) worst-case time."
+        },
+        {
+          q: "Which data structure operates strictly on the Last-In, First-Out (LIFO) access principle?",
+          options: ["Queue", "Stack", "Binary Heap", "Deque"],
+          correct: 1,
+          exp: "A Stack pushes and pops items from the top, making the last inserted element the first one removed."
+        },
+        {
+          q: "Which tree traversal visits the root node AFTER visiting both its left and right subtrees?",
+          options: ["Pre-order", "In-order", "Post-order", "Level-order"],
+          correct: 2,
+          exp: "Post-order traversal order is: Left Subtree -> Right Subtree -> Root."
+        },
+        {
+          q: "What is the worst-case time complexity of QuickSort when the pivot is always chosen as the smallest or largest element?",
+          options: ["O(N log N)", "O(N^2)", "O(N)", "O(2^N)"],
+          correct: 1,
+          exp: "Unbalanced partitions cause QuickSort to degenerate into O(N^2) time complexity."
+        },
+        {
+          q: "In a min-heap with N elements, where is the minimum value always guaranteed to reside?",
+          options: ["At any leaf node", "At the root node", "At the last index", "At index N/2"],
+          correct: 1,
+          exp: "The min-heap property ensures the smallest element is at the root node (index 0 or 1)."
+        }
+      ],
+      "CS-102": [
+        {
+          q: "Which C++ keyword allows a derived class method to override a base class method dynamically at runtime?",
+          options: ["static", "inline", "virtual", "friend"],
+          correct: 2,
+          exp: "The 'virtual' keyword creates a vtable pointer that enables dynamic runtime polymorphism."
+        },
+        {
+          q: "What happens if a class contains at least one pure virtual function (e.g. 'virtual void draw() = 0;')?",
+          options: ["The class cannot be inherited", "The class becomes abstract and cannot be instantiated", "It causes a compiler error", "It creates a static singleton"],
+          correct: 1,
+          exp: "A class with a pure virtual function is an Abstract Class and cannot have objects directly instantiated."
+        },
+        {
+          q: "Which constructor is automatically invoked when an object is passed by value to a function?",
+          options: ["Default constructor", "Parameterized constructor", "Copy constructor", "Destructor"],
+          correct: 2,
+          exp: "Passing an object by value invokes the Copy Constructor to duplicate the object state."
+        },
+        {
+          q: "Encapsulation in OOP is primarily achieved by combining data and methods into a class and using:",
+          options: ["Global variables", "Access specifiers (private, protected, public)", "Multiple inheritance", "Macros"],
+          correct: 1,
+          exp: "Access specifiers hide internal state and expose only controlled interfaces."
+        },
+        {
+          q: "To prevent memory leaks when deleting a derived class pointer stored in a base pointer, the base class destructor must be:",
+          options: ["Private", "Virtual", "Static", "Pure virtual"],
+          correct: 1,
+          exp: "A virtual destructor guarantees that both the derived class and base class destructors are called in sequence."
+        }
+      ],
+      "CS-204": [
+        {
+          q: "Which of the following is NOT one of the four Coffman conditions necessary for a system deadlock to occur?",
+          options: ["Mutual Exclusion", "Hold and Wait", "Preemptive Scheduling", "Circular Wait"],
+          correct: 2,
+          exp: "The 4 conditions are Mutual Exclusion, Hold and Wait, NO Preemption, and Circular Wait. Preemption breaks deadlock!"
+        },
+        {
+          q: "What hardware component translates virtual memory page addresses into physical RAM frame addresses?",
+          options: ["ALU", "MMU (Memory Management Unit)", "DMA Controller", "Bus Arbiter"],
+          correct: 1,
+          exp: "The MMU (Memory Management Unit) uses page tables and TLB to translate virtual addresses to physical RAM."
+        },
+        {
+          q: "A page fault interrupt occurs when an executing process attempts to access a page that:",
+          options: ["Is corrupted on disk", "Is marked read-only", "Is not currently loaded into physical RAM", "Has an invalid syntax"],
+          correct: 2,
+          exp: "A page fault occurs when a referenced virtual page is not mapped to physical RAM, triggering disk I/O."
+        },
+        {
+          q: "Which CPU scheduling algorithm gives each process a small fixed slice of CPU time (time quantum) in a cyclic order?",
+          options: ["First-Come, First-Served (FCFS)", "Round Robin (RR)", "Shortest Job First (SJF)", "Priority Scheduling"],
+          correct: 1,
+          exp: "Round Robin (RR) is preemptive and allocates a time quantum cyclically to provide fair response times."
+        },
+        {
+          q: "What is the primary difference between a process and a thread in modern operating systems?",
+          options: ["Processes share memory, threads do not", "Threads of the same process share code, data, and files but have independent stacks", "Threads cannot execute concurrently", "Processes have smaller overhead than threads"],
+          correct: 1,
+          exp: "Threads within the same process share address space, code and global data, but have their own registers and call stack."
+        }
+      ],
+      "CS-101": [
+        {
+          q: "What is the output of the expression `17 % 5` in C++?",
+          options: ["3", "2", "3.4", "0"],
+          correct: 1,
+          exp: "17 divided by 5 is 3 with a remainder of 2. The modulo operator (%) returns the integer remainder."
+        },
+        {
+          q: "In C++, what does the dereference operator `*ptr` do when applied to a pointer variable?",
+          options: ["Returns the memory address of ptr", "Accesses the value stored at the address ptr points to", "Multiplies ptr by 2", "Deletes the pointer"],
+          correct: 1,
+          exp: "The `*` dereference operator retrieves or modifies the value located at the pointer's target address."
+        },
+        {
+          q: "What is the valid index range for an array declared as `int arr[10];`?",
+          options: ["1 to 10", "0 to 9", "0 to 10", "-1 to 9"],
+          correct: 1,
+          exp: "C and C++ arrays are 0-indexed, so 10 elements occupy indices 0 through 9."
+        },
+        {
+          q: "Which loop structure in C++ is guaranteed to execute its code body at least once?",
+          options: ["for loop", "while loop", "do-while loop", "nested loop"],
+          correct: 2,
+          exp: "A do-while loop evaluates its condition at the bottom after executing the block at least once."
+        },
+        {
+          q: "What keyword is used in C++ to dynamically allocate memory on the heap?",
+          options: ["malloc", "alloc", "new", "create"],
+          correct: 2,
+          exp: "C++ uses the `new` operator to dynamically allocate heap memory and call constructors."
+        }
+      ],
+      "EE-102": [
+        {
+          q: "Which two logic gates are known as 'Universal Gates' because any boolean function can be built using only them?",
+          options: ["AND and OR", "NAND and NOR", "XOR and XNOR", "NOT and AND"],
+          correct: 1,
+          exp: "NAND and NOR gates are universal; any logic circuit (AND, OR, NOT, etc.) can be constructed entirely from either gate."
+        },
+        {
+          q: "According to De Morgan's Law, the boolean expression `(A + B)'` is equal to:",
+          options: ["A' + B'", "A' . B'", "A . B", "A' + B"],
+          correct: 1,
+          exp: "De Morgan's first theorem states: `(A + B)' = A' . B'` (NOR is equivalent to inverted-input AND)."
+        },
+        {
+          q: "How many selection lines are required for an 8-to-1 Multiplexer (MUX)?",
+          options: ["2", "3", "4", "8"],
+          correct: 1,
+          exp: "An 8-to-1 MUX has 2^3 = 8 data inputs, so 3 select lines are required to choose the input."
+        },
+        {
+          q: "Which flip-flop eliminates the undefined/invalid state (S=1, R=1) that occurs in standard SR flip-flops?",
+          options: ["D Flip-Flop", "JK Flip-Flop", "T Flip-Flop", "Master-Slave SR"],
+          correct: 1,
+          exp: "In a JK flip-flop, J=1 and K=1 causes the output to toggle, eliminating the invalid state."
+        },
+        {
+          q: "In a 4-variable Karnaugh Map (K-Map), how many total cells are present?",
+          options: ["8", "16", "32", "64"],
+          correct: 1,
+          exp: "A K-map with n variables has 2^n cells. For 4 variables, 2^4 = 16 cells."
+        }
+      ],
+      "CS-103": [
+        {
+          q: "If set A has 4 elements, how many total subsets does the power set P(A) contain?",
+          options: ["8", "12", "16", "32"],
+          correct: 2,
+          exp: "The power set of a set with n elements has 2^n subsets. 2^4 = 16 subsets."
+        },
+        {
+          q: "The conditional proposition `p -> q` is logically equivalent to its contrapositive:",
+          options: ["q -> p", "~q -> ~p", "~p -> ~q", "p ^ ~q"],
+          correct: 1,
+          exp: "A conditional statement `p -> q` is always logically equivalent to its contrapositive `~q -> ~p`."
+        },
+        {
+          q: "In graph theory, a connected graph with N vertices and no cycles is a:",
+          options: ["Complete graph", "Tree", "Bipartite graph", "Eulerian graph"],
+          correct: 1,
+          exp: "A tree is an undirected connected graph with N vertices and exactly N-1 edges containing zero cycles."
+        },
+        {
+          q: "How many different arrangements can be made from the letters of the word 'CAMPUS' (6 distinct letters)?",
+          options: ["120", "360", "720", "5040"],
+          correct: 2,
+          exp: "6 distinct letters can be permuted in 6! = 6 × 5 × 4 × 3 × 2 × 1 = 720 ways."
+        },
+        {
+          q: "A relation R on a set A is an Equivalence Relation if and only if it is:",
+          options: ["Reflexive, Symmetric, and Transitive", "Reflexive, Antisymmetric, and Transitive", "Irreflexive and Symmetric", "Symmetric and Transitive only"],
+          correct: 0,
+          exp: "An equivalence relation must be Reflexive (aRa), Symmetric (aRb -> bRa), and Transitive (aRb & bRc -> aRc)."
+        }
+      ],
+      "GEN-101": [
+        {
+          q: "In which year was the historic Lahore Resolution passed demanding a separate homeland for Muslims of the subcontinent?",
+          options: ["1930", "1935", "1940", "1947"],
+          correct: 2,
+          exp: "The Lahore Resolution was passed on March 23, 1940, at Minto Park (now Minar-e-Pakistan), Lahore."
+        },
+        {
+          q: "Who presided over the historic Allahabad Session of 1930 and presented the concept of a separate Muslim state in North-West India?",
+          options: ["Quaid-e-Azam Muhammad Ali Jinnah", "Allama Muhammad Iqbal", "Sir Syed Ahmad Khan", "Liaquat Ali Khan"],
+          correct: 1,
+          exp: "Allama Iqbal delivered the famous Allahabad Address in December 1930 outlining the vision for an autonomous state."
+        },
+        {
+          q: "Which constitutional amendment introduced the Objective Resolution into the substantive text of the Constitution of Pakistan 1973 as Article 2A?",
+          options: ["5th Amendment", "8th Amendment", "18th Amendment", "21st Amendment"],
+          correct: 1,
+          exp: "The 8th Constitutional Amendment in 1985 made the Objectives Resolution an operative part of the Constitution via Article 2A."
+        },
+        {
+          q: "What is the primary compilation of sayings and actions of Prophet Muhammad (PBUH) referred to in Islamic jurisprudence?",
+          options: ["Fiqh", "Hadith / Sunnah", "Qiyas", "Ijma"],
+          correct: 1,
+          exp: "Hadith and Sunnah form the second primary source of Islamic law alongside the Holy Quran."
+        },
+        {
+          q: "Which battle in Islamic history was fought in the 2nd year of Hijra and resulted in a decisive victory for Muslims?",
+          options: ["Battle of Uhud", "Battle of Badr", "Battle of Khandaq", "Battle of Tabuk"],
+          correct: 1,
+          exp: "The Battle of Badr took place in 2 AH (624 CE) on the 17th of Ramadan."
+        }
+      ]
+    };
+
+    let activeQuiz = {
+      subjectCode: "CS-203",
+      subjectName: "Database Systems",
+      mode: "blitz",
+      questions: [],
+      currentIndex: 0,
+      score: 0,
+      selectedAnswer: null
+    };
+
+    function openExamArenaModal(mode = "blitz") {
+      resetQuizToSetup();
+      openModal("quizModal");
+    }
+
+    function startQuizForSubject(name, code) {
+      resetQuizToSetup();
+      const select = document.getElementById("quizSubjectSelect");
+      if (select) {
+        if (EXAM_QUESTION_BANK[code]) {
+          select.value = code;
+        } else {
+          select.value = "CS-203";
+        }
+      }
+      openModal("quizModal");
+      startActiveQuiz();
+    }
+
+    function setQuizMode(mode) {
+      activeQuiz.mode = mode;
+      const blitzBtn = document.getElementById("quizModeBlitzBtn");
+      const fullBtn = document.getElementById("quizModeFullBtn");
+
+      if (mode === "blitz") {
+        blitzBtn.className = "p-3 rounded-xl border border-indigo-500 bg-indigo-950/60 text-white font-bold text-left transition";
+        fullBtn.className = "p-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-bold text-left hover:border-slate-600 transition";
+      } else {
+        fullBtn.className = "p-3 rounded-xl border border-indigo-500 bg-indigo-950/60 text-white font-bold text-left transition";
+        blitzBtn.className = "p-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-bold text-left hover:border-slate-600 transition";
+      }
+    }
+
+    function startActiveQuiz() {
+      const select = document.getElementById("quizSubjectSelect");
+      const code = select ? select.value : "CS-203";
+      const subjectNames = {
+        "CS-203": "Database Systems (SQL)",
+        "CS-201": "Data Structures (DSA)",
+        "CS-102": "OOP (C++ / Java)",
+        "CS-204": "Operating Systems",
+        "CS-101": "Programming Fundamentals",
+        "EE-102": "Digital Logic Design (DLD)",
+        "CS-103": "Discrete Structures",
+        "GEN-101": "Pak & Islamic Studies"
+      };
+
+      const bank = EXAM_QUESTION_BANK[code] || EXAM_QUESTION_BANK["CS-203"];
+      activeQuiz.subjectCode = code;
+      activeQuiz.subjectName = subjectNames[code] || "Computer Science";
+      activeQuiz.questions = [...bank];
+      activeQuiz.currentIndex = 0;
+      activeQuiz.score = 0;
+      activeQuiz.selectedAnswer = null;
+
+      document.getElementById("quizSetupView").classList.add("hidden");
+      document.getElementById("quizResultView").classList.add("hidden");
+      document.getElementById("quizPlayerView").classList.remove("hidden");
+
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const q = activeQuiz.questions[activeQuiz.currentIndex];
+      const total = activeQuiz.questions.length;
+      activeQuiz.selectedAnswer = null;
+
+      document.getElementById("quizSubjectBadge").innerText = activeQuiz.subjectName;
+      document.getElementById("quizProgressText").innerText = `Question ${activeQuiz.currentIndex + 1} of ${total}`;
+      document.getElementById("quizProgressBar").style.width = `${((activeQuiz.currentIndex + 1) / total) * 100}%`;
+      document.getElementById("quizQuestionText").innerText = q.q;
+
+      document.getElementById("quizExplanationBox").classList.add("hidden");
+      document.getElementById("quizNextBtn").classList.add("hidden");
+
+      const container = document.getElementById("quizOptionsContainer");
+      container.innerHTML = q.options.map((opt, idx) => `
+        <button type="button" onclick="selectQuizOption(${idx})" id="quizOptionBtn_${idx}"
+                class="w-full p-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-white text-xs font-medium text-left flex items-start gap-2.5 transition">
+          <span class="w-5 h-5 rounded-full bg-slate-900 border border-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-300 flex-shrink-0 mt-0.5">
+            ${String.fromCharCode(65 + idx)}
+          </span>
+          <span class="flex-1 text-slate-200">${opt}</span>
+        </button>
+      `).join("");
+    }
+
+    function selectQuizOption(idx) {
+      if (activeQuiz.selectedAnswer !== null) return;
+      activeQuiz.selectedAnswer = idx;
+
+      const q = activeQuiz.questions[activeQuiz.currentIndex];
+      const isCorrect = (idx === q.correct);
+      if (isCorrect) activeQuiz.score++;
+
+      // Style options
+      for (let i = 0; i < q.options.length; i++) {
+        const btn = document.getElementById(`quizOptionBtn_${i}`);
+        if (!btn) continue;
+        btn.disabled = true;
+
+        if (i === q.correct) {
+          btn.className = "w-full p-3 rounded-xl bg-emerald-950/80 border-2 border-emerald-500 text-white text-xs font-semibold text-left flex items-start gap-2.5 transition shadow-lg shadow-emerald-950/40";
+          btn.querySelector("span:first-child").className = "w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5";
+          btn.querySelector("span:first-child").innerHTML = `<i class="fa-solid fa-check"></i>`;
+        } else if (i === idx && !isCorrect) {
+          btn.className = "w-full p-3 rounded-xl bg-red-950/80 border-2 border-red-500 text-white text-xs font-semibold text-left flex items-start gap-2.5 transition shadow-lg shadow-red-950/40";
+          btn.querySelector("span:first-child").className = "w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5";
+          btn.querySelector("span:first-child").innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+        } else {
+          btn.className = "w-full p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-500 text-xs text-left flex items-start gap-2.5 opacity-50";
+        }
+      }
+
+      // Show explanation
+      const expBox = document.getElementById("quizExplanationBox");
+      const expText = document.getElementById("quizExplanationText");
+      if (expBox && expText) {
+        expText.innerText = q.exp;
+        expBox.classList.remove("hidden");
+      }
+
+      // Show next button
+      const nextBtn = document.getElementById("quizNextBtn");
+      if (nextBtn) {
+        nextBtn.innerText = (activeQuiz.currentIndex + 1 < activeQuiz.questions.length) ? "Next Question ➔" : "View Exam Score 🏆";
+        nextBtn.classList.remove("hidden");
+      }
+    }
+
+    function nextQuizQuestion() {
+      if (activeQuiz.currentIndex + 1 < activeQuiz.questions.length) {
+        activeQuiz.currentIndex++;
+        renderQuizQuestion();
+      } else {
+        showQuizResults();
+      }
+    }
+
+    function showQuizResults() {
+      document.getElementById("quizPlayerView").classList.add("hidden");
+      document.getElementById("quizResultView").classList.remove("hidden");
+
+      const total = activeQuiz.questions.length;
+      const score = activeQuiz.score;
+      const pct = Math.round((score / total) * 100);
+
+      document.getElementById("quizResultSubject").innerText = activeQuiz.subjectName;
+      document.getElementById("quizResultScore").innerText = `${score} / ${total} Correct (${pct}%)`;
+
+      const verdictEl = document.getElementById("quizResultVerdict");
+      if (pct >= 80) {
+        verdictEl.innerText = "🌟 A Grade Potential! You are fully prepared to ace your midterms & finals!";
+      } else if (pct >= 60) {
+        verdictEl.innerText = "📚 Good Progress! Review the explanations above to turn those B's into an A.";
+      } else {
+        verdictEl.innerText = "🔄 Needs Revision! Go through the course past papers and re-try this quiz.";
+      }
+    }
+
+    function shareQuizScoreToFeed() {
+      const studentName = currentUser ? currentUser.full_name : "Student";
+      const total = activeQuiz.questions.length;
+      const pct = Math.round((activeQuiz.score / total) * 100);
+
+      const payload = {
+        author_name: studentName,
+        campus_name: currentUser && currentUser.university_name ? currentUser.university_name : activeCampus,
+        content: `🎯 Just scored ${activeQuiz.score}/${total} (${pct}%) in ${activeQuiz.subjectName} Midterm Exam Quiz on CampusConnect! 🏆 Can anyone beat my score?`,
+        media_url: null,
+        media_type: "text"
+      };
+
+      try {
+        fetch(`${API_URL}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).catch(() => {});
+      } catch(e) {}
+
+      fallbackPublish(payload);
+      closeModal("quizModal");
+      switchTab("feed");
+      alert("🎉 Quiz score shared with your campus community!");
+    }
+
+    function retakeCurrentQuiz() {
+      startActiveQuiz();
+    }
+
+    function resetQuizToSetup() {
+      document.getElementById("quizPlayerView").classList.add("hidden");
+      document.getElementById("quizResultView").classList.add("hidden");
+      document.getElementById("quizSetupView").classList.remove("hidden");
+    }
+
+    function cancelQuiz() {
+      if (confirm("Do you want to exit this quiz session?")) {
+        resetQuizToSetup();
+        closeModal("quizModal");
+      }
     }
 
     function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
