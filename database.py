@@ -22,22 +22,13 @@ try:
         pool_pre_ping=True,
         pool_recycle=300,
         echo=False,
-        connect_args={"connect_timeout": 4}
+        connect_args={"connect_timeout": 3}
     )
-    # Quick probe to verify if Supabase is active
-    with engine.connect() as probe:
-        pass
-except Exception as e:
-    # If Supabase free tier is paused due to inactivity, fall back to SQLite so the app NEVER crashes
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+except Exception:
     db_path = os.path.join(os.path.dirname(__file__), "campus_connect.db")
     engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
-    try:
-        import models
-        models.Base.metadata.create_all(bind=engine)
-    except Exception:
-        pass
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
     db = SessionLocal()
