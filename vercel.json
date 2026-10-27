@@ -1,47 +1,36 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/auth/(.*)",
-      "dest": "api/index.py"
+      "source": "/auth/(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/posts(.*)",
-      "dest": "api/index.py"
+      "source": "/posts(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/courses(.*)",
-      "dest": "api/index.py"
+      "source": "/courses(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/resources(.*)",
-      "dest": "api/index.py"
+      "source": "/resources(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/marketplace(.*)",
-      "dest": "api/index.py"
+      "source": "/marketplace(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/universities(.*)",
-      "dest": "api/index.py"
+      "source": "/universities(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/upload(.*)",
-      "dest": "api/index.py"
+      "source": "/upload(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/health(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "public/$1"
+      "source": "/health(.*)",
+      "destination": "/api/index.py"
     }
   ]
 }
