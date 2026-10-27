@@ -20,3 +20,6 @@ $RECYCLE.BIN/
 
 # Cloudflared logs
 *.log
+
+*.db
+__pycache__/

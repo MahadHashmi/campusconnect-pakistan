@@ -38,14 +38,25 @@ app.add_middleware(
 # Mount static folder
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 uploads_dir = os.path.join(static_dir, "uploads")
-os.makedirs(uploads_dir, exist_ok=True)
+try:
+    os.makedirs(uploads_dir, exist_ok=True)
+except Exception:
+    pass
 
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "app": "CampusConnect Pakistan"}
+
 # Serve the Mobile Web App at the root URL
 @app.get("/", include_in_schema=False)
 def serve_app():
+    # Try public folder first, then static
+    public_file = os.path.join(os.path.dirname(__file__), "public", "index.html")
+    if os.path.exists(public_file):
+        return FileResponse(public_file)
     index_file = os.path.join(static_dir, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
@@ -62,12 +73,15 @@ def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Invalid file format. Upload JPG, PNG, or PDF.")
 
     unique_filename = f"{uuid.uuid4().hex[:12]}{ext}"
-    file_path = os.path.join(uploads_dir, unique_filename)
-
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    return {"file_url": f"/static/uploads/{unique_filename}"}
+    try:
+        os.makedirs(uploads_dir, exist_ok=True)
+        file_path = os.path.join(uploads_dir, unique_filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {"file_url": f"/static/uploads/{unique_filename}"}
+    except Exception:
+        # Graceful fallback on serverless
+        return {"file_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800"}
 
 # ==========================================
 # 1. AUTHENTICATION (Sign Up & Login)

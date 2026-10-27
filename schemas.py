@@ -51,6 +51,8 @@ class UserRegisterRequest(BaseModel):
     full_name: str
     email: EmailStr
     password: str
+    university_name: Optional[str] = "Punjab University (PU)"
+    department_name: Optional[str] = "Computer Science"
     university_id: Optional[int] = 1
     department_id: Optional[int] = 1
     semester: int = 1
@@ -66,6 +68,8 @@ class UserResponse(BaseModel):
     semester: int
     university_id: Optional[int] = None
     department_id: Optional[int] = None
+    university_name: Optional[str] = "Punjab University (PU)"
+    department_name: Optional[str] = "Computer Science"
 
     class Config:
         from_attributes = True
