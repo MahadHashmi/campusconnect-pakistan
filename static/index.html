@@ -788,6 +788,24 @@
     let deferredPrompt = null;
     let currentUser = null;
 
+    // Resilient network fetch with instant 3.5s timeout fallback
+    async function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 3500, ...fetchOptions } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(resource, {
+          ...fetchOptions,
+          signal: controller.signal
+        });
+        clearTimeout(id);
+        return response;
+      } catch (error) {
+        clearTimeout(id);
+        throw error;
+      }
+    }
+
     // PWA Mobile App Installation Prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -907,10 +925,11 @@
       btn.disabled = true;
 
       try {
-        const res = await fetch(`${API_URL}/auth/login`, {
+        const res = await fetchWithTimeout(`${API_URL}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
+          timeout: 3000
         });
 
         if (res.ok) {
@@ -971,10 +990,11 @@
       };
 
       try {
-        const res = await fetch(`${API_URL}/auth/register`, {
+        const res = await fetchWithTimeout(`${API_URL}/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          timeout: 3000
         });
 
         if (res.ok) {
@@ -1150,7 +1170,7 @@
       }
 
       try {
-        const res = await fetch(`${API_URL}/posts`);
+        const res = await fetchWithTimeout(`${API_URL}/posts`, { timeout: 3000 });
         if (res.ok) {
           const posts = await res.json();
           if (posts && posts.length > 0) {
@@ -1214,10 +1234,11 @@
       };
 
       try {
-        const res = await fetch(`${API_URL}/posts`, {
+        const res = await fetchWithTimeout(`${API_URL}/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          timeout: 3500
         });
 
         if (res.ok) {
@@ -1263,7 +1284,7 @@
       icon.classList.add('fa-solid', 'text-pink-500');
 
       try {
-        const res = await fetch(`${API_URL}/posts/${postId}/like`, { method: "POST" });
+        const res = await fetchWithTimeout(`${API_URL}/posts/${postId}/like`, { method: "POST", timeout: 2500 });
         if (res.ok) {
           const data = await res.json();
           countSpan.innerText = data.likes_count;
@@ -1298,7 +1319,7 @@
       if (category) url += `?category=${category}`;
 
       try {
-        const res = await fetch(url);
+        const res = await fetchWithTimeout(url, { timeout: 3000 });
         if (res.ok) {
           const items = await res.json();
           if (items.length > 0) {
@@ -1384,10 +1405,11 @@
       };
 
       try {
-        const res = await fetch(`${API_URL}/marketplace`, {
+        const res = await fetchWithTimeout(`${API_URL}/marketplace`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          timeout: 3000
         });
         if (res.ok) {
           alert("🎉 Your item has been listed in the Campus Bazaar!");
@@ -1465,7 +1487,7 @@
     async function loadVaultCourses(semester) {
       const container = document.getElementById("vaultCoursesContainer");
       try {
-        const res = await fetch(`${API_URL}/courses?semester=${semester}`);
+        const res = await fetchWithTimeout(`${API_URL}/courses?semester=${semester}`, { timeout: 3000 });
         if (res.ok) {
           const courses = await res.json();
           if (courses.length > 0) {
@@ -1991,10 +2013,11 @@
       };
 
       try {
-        fetch(`${API_URL}/posts`, {
+        fetchWithTimeout(`${API_URL}/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          timeout: 2500
         }).catch(() => {});
       } catch(e) {}
 
