@@ -10,12 +10,8 @@ load_dotenv()
 
 logger = logging.getLogger("campusconnect.db")
 
-# Default Supabase pooler is paused after inactivity, so we default to resilient SQLite
-# unless an active, verified DATABASE_URL is explicitly set.
-RAW_DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-
-engine = None
-SessionLocal = None
+SUPABASE_PG8000_URL = "postgresql+pg8000://postgres.pbyazfahuytyzxjkcluu:MyCampusPass2026!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+RAW_DATABASE_URL = os.getenv("DATABASE_URL", SUPABASE_PG8000_URL).strip()
 
 def get_sqlite_engine():
     temp_dir = tempfile.gettempdir()
@@ -26,32 +22,29 @@ def get_sqlite_engine():
     )
     return eng
 
-# Check if valid Postgres URL provided and doesn't belong to the paused Supabase project
-use_postgres = False
-if RAW_DATABASE_URL and "pbyazfahuytyzxjkcluu" not in RAW_DATABASE_URL:
-    try:
-        url = RAW_DATABASE_URL
-        if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql+psycopg2://", 1)
-        elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
-            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
-            
-        test_engine = create_engine(
-            url,
-            pool_pre_ping=True,
-            pool_recycle=300,
-            connect_args={"connect_timeout": 2}
-        )
-        with test_engine.connect() as conn:
-            pass
-        engine = test_engine
-        use_postgres = True
-        logger.info("Connected to remote PostgreSQL database.")
-    except Exception as e:
-        logger.warning(f"PostgreSQL connection failed ({e}), falling back to SQLite.")
-        engine = None
+engine = None
 
-if engine is None:
+try:
+    url = RAW_DATABASE_URL
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+pg8000://", 1)
+    elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        url = url.replace("postgresql://", "postgresql+pg8000://", 1)
+    elif "psycopg2" in url:
+        url = url.replace("postgresql+psycopg2://", "postgresql+pg8000://", 1)
+
+    test_engine = create_engine(
+        url,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        echo=False
+    )
+    with test_engine.connect() as conn:
+        pass
+    engine = test_engine
+    logger.info("Connected to remote cloud PostgreSQL database successfully!")
+except Exception as e:
+    logger.warning(f"Cloud PostgreSQL ping failed ({e}). Falling back to local SQLite.")
     engine = get_sqlite_engine()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
