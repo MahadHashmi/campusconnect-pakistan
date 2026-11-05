@@ -145,8 +145,20 @@ def init_and_seed_db():
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
 
-# Run seed on import
-init_and_seed_db()
+_db_initialized = False
+
+def ensure_db_ready():
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            init_and_seed_db()
+            _db_initialized = True
+        except Exception as e:
+            logger.error(f"Lazy db init error: {e}")
+
+@app.on_event("startup")
+def on_startup():
+    ensure_db_ready()
 
 # Mount static folder safely
 static_dir = os.path.join(os.path.dirname(__file__), "static")
